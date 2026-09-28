@@ -1,5 +1,7 @@
 # cakephp-daisyui
 
+[![Packagist](https://img.shields.io/packagist/v/themusicdev/cakephp-daisyui)](https://packagist.org/packages/themusicdev/cakephp-daisyui)
+
 daisyUI 5 view helpers for CakePHP 5.
 
 Built by [TheMusicDev LLC](https://github.com/TheMusicDev), MIT licensed.
@@ -10,6 +12,8 @@ Built by [TheMusicDev LLC](https://github.com/TheMusicDev), MIT licensed.
   with no other package.
 
 ## Install
+
+[themusicdev/cakephp-daisyui](https://packagist.org/packages/themusicdev/cakephp-daisyui) on Packagist:
 
 ```sh
 composer require themusicdev/cakephp-daisyui
