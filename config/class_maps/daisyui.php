@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+// Almost every value is a daisyUI class. A few plugin-owned keys also hold Tailwind
+// utilities (control.*, table.part.wrapper, themeController.part.menu, flash.part.*):
+// see README "Tailwind utility classes the plugin emits" before overriding them.
 return [
     // Button — https://daisyui.com/components/button/
     'button.base' => 'btn',

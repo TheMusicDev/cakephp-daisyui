@@ -97,6 +97,36 @@ Configure::write('DaisyUi.classMapOverrides', ['badge.color.success' => 'badge-s
 - Class-map **keys** are public API: renaming or removing a key is a major
   release. Changing a default **value** is a minor release.
 
+## Tailwind utility classes the plugin emits
+
+Almost every class the helpers output is a daisyUI class. A few features also
+need plain Tailwind utilities; they live in plugin-owned class-map keys, so you
+can override them like any other entry:
+
+| Key | Default | Used by | If you remove it |
+|---|---|---|---|
+| `control.part.error` | `label text-error` | `Form->control()` error message | Errors lose their red color |
+| `control.layout.horizontal` | `grid-cols-[10rem_1fr] items-center gap-x-4` | `Form->create(…, ['align' => 'horizontal'])` | Horizontal forms stack vertically |
+| `control.layout.offset` | `col-start-2` | help / hint / error text in horizontal forms | That text lands in the label column |
+| `table.part.wrapper` | `overflow-x-auto` | `DataDisplay->table()` scroll wrapper (`wrap => false` omits it) | Wide tables overflow on small screens |
+| `themeController.part.menu` | `menu bg-base-200 rounded-box w-52 p-2 shadow-sm` | `Actions->themeController()` with 3+ themes (or pass `menuClass`) | The theme dropdown has no background or width |
+| `flash.part.dismissToggle` | `peer sr-only` | the hidden checkbox behind a flash message's ✕ | The checkbox becomes visible / dismiss stops working |
+| `flash.part.dismissible` | `peer-checked:hidden peer-focus-visible:outline-2` | the flash alert | ✕ no longer hides the message |
+
+Things to know:
+
+- **CDN mode**: nothing to do — the Tailwind browser build generates any class
+  it finds on the page.
+- **Your own Tailwind build**: these classes are written out literally in the
+  plugin's `config/class_maps/daisyui.php`, which the `@source` lines in
+  [Production CSS](#production-css-a-tailwind-build) already scan. If you
+  override them in your app's config, keep the `@source "../config";` line so
+  Tailwind sees your values too.
+- **Overriding**: replace a whole value, e.g.
+  `Configure::write('DaisyUi.classMapOverrides', ['table.part.wrapper' => 'overflow-x-auto rounded-box border'])`.
+  Keep the classes a feature depends on (e.g. `peer` / `peer-checked:hidden`
+  for the flash dismiss) or that feature stops working.
+
 ## CSS loading
 
 `AssetsHelper::css()` emits pinned daisyUI/Tailwind CDN tags (SRI-hashed):
