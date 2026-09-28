@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-lowest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Composer install (prefer-lowest)
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '--prefer-lowest --prefer-stable'
+      - run: composer check
+
+  test-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 'stable'
+          coverage: none
+      - run: composer install --prefer-dist --no-interaction
+      - run: composer check
+
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - run: composer install --prefer-dist --no-interaction
+      - run: composer cs-check
+      - run: composer stan
+      - run: composer validate --strict --no-check-publish
+
+  docs-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: cakephp-daisyui
+      - uses: actions/checkout@v4
+        with:
+          repository: TheMusicDev/cakephp-daisyui-docs
+          path: cakephp-daisyui-docs
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Point docs at this plugin checkout
+        run: |
+          cd cakephp-daisyui-docs
+          composer config repositories.plugin '{"type": "path", "url": "../cakephp-daisyui", "options": {"symlink": true}}'
+          composer install --prefer-dist --no-interaction
+      - run: cd cakephp-daisyui-docs && vendor/bin/phpunit
