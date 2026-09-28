@@ -11,3 +11,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `ActionsHelper::button()` with `color`, `appearance`, `behavior`, `size`,
   `modifier`, `url`, `class`, `escape` options and the `button` class map.
+- `DataDisplayHelper::badge()` with `color`, `size`, `appearance`, `class`,
+  `escape` options and the `badge` class map.
