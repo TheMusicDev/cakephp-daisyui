@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<ruleset name="DaisyUi">
+    <rule ref="CakePHP"/>
+    <file>src/</file>
+    <file>tests/</file>
+</ruleset>

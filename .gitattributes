@@ -1,0 +1,6 @@
+/tests export-ignore
+/.github export-ignore
+/phpunit.xml.dist export-ignore
+/phpcs.xml export-ignore
+/phpstan.neon export-ignore
+/captainhook.json export-ignore
