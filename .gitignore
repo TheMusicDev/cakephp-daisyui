@@ -1,3 +1,4 @@
 /vendor/
 /composer.lock
-/.phpunit.cache//tests/test_app/
+/.phpunit.cache/
+/tests/test_app/
