@@ -60,6 +60,8 @@ jobs:
       - name: Point docs at this plugin checkout
         run: |
           cd cakephp-daisyui-docs
-          composer config repositories.plugin '{"type": "path", "url": "../cakephp-daisyui", "options": {"symlink": true, "versions": {"themusicdev/cakephp-daisyui": "dev-main"}}}'
           composer install --prefer-dist --no-interaction
+          # The docs app requires the released plugin (^1.0); swap in this checkout so the smoke test runs against this push.
+          composer config repositories.plugin '{"type": "path", "url": "../cakephp-daisyui", "options": {"symlink": true, "versions": {"themusicdev/cakephp-daisyui": "1.x-dev"}}}'
+          composer update themusicdev/cakephp-daisyui --no-interaction
       - run: cd cakephp-daisyui-docs && vendor/bin/phpunit
