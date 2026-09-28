@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 return [
+    // Button — https://daisyui.com/components/button/
     'button.base' => 'btn',
     'button.color.neutral' => 'btn-neutral',
     'button.color.primary' => 'btn-primary',
