@@ -60,6 +60,6 @@ jobs:
       - name: Point docs at this plugin checkout
         run: |
           cd cakephp-daisyui-docs
-          composer config repositories.plugin '{"type": "path", "url": "../cakephp-daisyui", "options": {"symlink": true}}'
+          composer config repositories.plugin '{"type": "path", "url": "../cakephp-daisyui", "options": {"symlink": true, "versions": {"themusicdev/cakephp-daisyui": "dev-main"}}}'
           composer install --prefer-dist --no-interaction
       - run: cd cakephp-daisyui-docs && vendor/bin/phpunit

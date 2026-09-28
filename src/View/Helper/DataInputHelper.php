@@ -30,6 +30,11 @@ class DataInputHelper extends Helper
      */
     private function redirect(string $method): never
     {
+        if ($method === 'calendar') {
+            throw new BadMethodCallException(
+                'The "calendar" component is the native date input: $this->Form->control($field, ["type" => "date"]).',
+            );
+        }
         throw new BadMethodCallException(sprintf(
             'The "%s" component is owned by the Form helper: $this->Form->control($field, ["type" => "..."]).',
             $method,
@@ -65,7 +70,7 @@ class DataInputHelper extends Helper
      */
     public function fileInput(): never
     {
-        $this->redirect('file-input');
+        $this->redirect('fileInput');
     }
 
     /**

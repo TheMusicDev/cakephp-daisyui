@@ -5,12 +5,16 @@ namespace TheMusicDev\DaisyUi\View\Helper;
 
 use Cake\Core\Configure;
 use Cake\View\Helper;
+use InvalidArgumentException;
 
 /**
  * Emits the pinned daisyUI CDN assets (spec §5.7).
  *
  * CDN mode is for development and prototyping; production apps load a
  * compiled stylesheet with `$this->Html->css()`.
+ *
+ * Each CDN entry carries its own URL and integrity hash, so a hash is
+ * never applied to a user-supplied URL.
  *
  * @extends \Cake\View\Helper<\Cake\View\View>
  * @property \Cake\View\Helper\HtmlHelper $Html
@@ -24,9 +28,18 @@ class AssetsHelper extends Helper
      */
     protected array $_defaultConfig = [
         'cdn' => [
-            'daisyui' => 'https://cdn.jsdelivr.net/npm/daisyui@5.7.46/daisyui.css',
-            'themes' => 'https://cdn.jsdelivr.net/npm/daisyui@5.7.46/themes.css',
-            'tailwind' => 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3',
+            'daisyui' => [
+                'url' => 'https://cdn.jsdelivr.net/npm/daisyui@5.7.46/daisyui.css',
+                'integrity' => 'sha384-bbGkD3MAh/9AO9eBt/6ReKyGTu78VjNCrlo1uLqxHFOrFr8lRuS4H0sC04ucGill',
+            ],
+            'themes' => [
+                'url' => 'https://cdn.jsdelivr.net/npm/daisyui@5.7.46/themes.css',
+                'integrity' => 'sha384-c36/WtFSy9L5usv/sVucIkudH6aZA2jUVg6yyWX8TzPxBC9XoLMaa2WO9kaM5pKc',
+            ],
+            'tailwind' => [
+                'url' => 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3',
+                'integrity' => 'sha384-aJ9rL4k6lF+91guGvUFVSkpIcge7Zd9EiI4TQDLoK9kFaFJgKHgjEXVvG/qA5COj',
+            ],
         ],
     ];
 
@@ -41,21 +54,44 @@ class AssetsHelper extends Helper
      */
     public function css(): string
     {
-        $cdn = Configure::read('DaisyUi.cdn');
-        if ($cdn === null) {
-            $cdn = $this->getConfig('cdn');
-        }
-        if ($cdn === false || !is_array($cdn)) {
+        if (Configure::read('DaisyUi.cdn') === false) {
             return '';
         }
 
-        $options = ['crossorigin' => 'anonymous'];
+        $entries = array_replace($this->getConfig('cdn'), (array)Configure::read('DaisyUi.cdn', []));
 
-        return $this->Html->css((string)$cdn['daisyui'], ['integrity' => self::SRI_DAISYUI] + $options)
-            . $this->Html->script((string)$cdn['tailwind'], ['integrity' => self::SRI_TAILWIND] + $options);
+        return $this->tag('css', 'daisyui', $entries['daisyui'])
+            . $this->tag('script', 'tailwind', $entries['tailwind']);
     }
 
-    private const SRI_DAISYUI = 'sha384-bbGkD3MAh/9AO9eBt/6ReKyGTu78VjNCrlo1uLqxHFOrFr8lRuS4H0sC04ucGill';
+    /**
+     * Emits one asset tag from a CDN entry.
+     *
+     * @param string $type Either 'css' or 'script'.
+     * @param string $name Entry key under `DaisyUi.cdn`, for error messages.
+     * @param array<string, mixed> $entry The entry, with 'url' and an
+     *   optional non-empty 'integrity'.
+     * @return string
+     * @throws \InvalidArgumentException When the entry has no non-empty 'url'.
+     */
+    private function tag(string $type, string $name, array $entry): string
+    {
+        $url = $entry['url'] ?? null;
+        if (!is_string($url) || $url === '') {
+            throw new InvalidArgumentException(sprintf(
+                'DaisyUi.cdn.%s needs a non-empty \'url\', e.g. [\'url\' => \'https://...\'].',
+                $name,
+            ));
+        }
+        $options = [];
+        $integrity = $entry['integrity'] ?? null;
+        if (is_string($integrity) && $integrity !== '') {
+            $options['integrity'] = $integrity;
+            $options['crossorigin'] = 'anonymous';
+        }
 
-    private const SRI_TAILWIND = 'sha384-aJ9rL4k6lF+91guGvUFVSkpIcge7Zd9EiI4TQDLoK9kFaFJgKHgjEXVvG/qA5COj';
+        return (string)($type === 'css'
+            ? $this->Html->css($url, $options)
+            : $this->Html->script($url, $options));
+    }
 }

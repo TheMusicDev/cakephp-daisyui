@@ -11,42 +11,35 @@ use TheMusicDev\DaisyUi\View\ClassMap;
 
 class ClassMapTest extends TestCase
 {
+    private string $written = '';
+
     protected function setUp(): void
     {
         parent::setUp();
         ClassMap::reset();
     }
 
-    /**
-     * Writes an app-side class map into CONFIG and returns its path.
-     *
-     * @param array<string, string> $map Map contents.
-     * @param string $name Map file name (without .php).
-     * @return string
-     */
-    private function writeAppMap(array $map, string $name = 'custom'): string
+    protected function tearDown(): void
     {
-        $dir = CONFIG . 'class_maps/';
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
+        if ($this->written !== '' && file_exists($this->written)) {
+            unlink($this->written);
         }
-        $path = $dir . $name . '.php';
-        file_put_contents($path, "<?php\nreturn " . var_export($map, true) . ";\n");
+        $this->written = '';
 
-        return $path;
+        parent::tearDown();
     }
 
-    public function testAppMapTakesPriority(): void
+    public function testAppMapShadowsPluginMapOfSameName(): void
     {
-        $name = 'app-' . uniqid();
-        $this->writeAppMap(['button.base' => 'btn'], $name);
-        Configure::write('DaisyUi.classMap', $name);
+        $path = CONFIG . 'class_maps/daisyui.php';
+        file_put_contents($path, "<?php\nreturn ['button.base' => 'app-btn'];\n");
+        $this->written = $path;
         ClassMap::reset();
 
-        $this->assertSame('btn', ClassMap::get('button.base'));
+        $this->assertSame('app-btn', ClassMap::get('button.base'));
     }
 
-    public function testMissingKeyThrows(): void
+    public function testFallsBackToPluginMap(): void
     {
         Configure::delete('DaisyUi.classMap');
         ClassMap::reset();
@@ -58,9 +51,7 @@ class ClassMapTest extends TestCase
 
     public function testOverridesApplyOnTopOfTheChosenMap(): void
     {
-        $name = 'override-' . uniqid();
-        $this->writeAppMap(['badge.color.primary' => 'badge-primary'], $name);
-        Configure::write('DaisyUi.classMap', $name);
+        Configure::write('DaisyUi.classMap', 'custom');
         Configure::write('DaisyUi.classMapOverrides', ['badge.color.primary' => 'badge-primary custom']);
         ClassMap::reset();
 
@@ -69,9 +60,7 @@ class ClassMapTest extends TestCase
 
     public function testSwappedMapReplacesTheDefault(): void
     {
-        $name = 'swapped-' . uniqid();
-        $this->writeAppMap(['card.part.body' => 'custom-body'], $name);
-        Configure::write('DaisyUi.classMap', $name);
+        Configure::write('DaisyUi.classMap', 'custom');
         ClassMap::reset();
 
         $this->assertSame('custom-body', ClassMap::get('card.part.body'));
@@ -79,9 +68,7 @@ class ClassMapTest extends TestCase
 
     public function testClassesJoinsNonEmptyResults(): void
     {
-        $name = 'classes-' . uniqid();
-        $this->writeAppMap(['badge.base' => 'badge', 'badge.size.sm' => 'badge-sm', 'badge.part.icon' => ''], $name);
-        Configure::write('DaisyUi.classMap', $name);
+        Configure::write('DaisyUi.classMap', 'custom');
         ClassMap::reset();
 
         $this->assertSame('badge badge-sm', ClassMap::classes('badge.base', 'badge.part.icon', 'badge.size.sm'));
@@ -89,7 +76,7 @@ class ClassMapTest extends TestCase
 
     public function testUnknownMapNameThrows(): void
     {
-        Configure::write('DaisyUi.classMap', 'does-not-exist-' . uniqid());
+        Configure::write('DaisyUi.classMap', 'does-not-exist');
         ClassMap::reset();
 
         $this->expectException(RuntimeException::class);

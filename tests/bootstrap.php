@@ -18,6 +18,12 @@ define('CAKE', CORE_PATH . 'src/');
 
 require CORE_PATH . 'config/bootstrap.php';
 
+// ClassMapTest briefly writes an app-side daisyui.php to test shadowing; if a
+// crashed run left it behind it would silently replace the plugin map everywhere.
+if (is_file(CONFIG . 'class_maps/daisyui.php')) {
+    unlink(CONFIG . 'class_maps/daisyui.php');
+}
+
 Configure::write('debug', true);
 Configure::write('App', [
     'namespace' => 'App',

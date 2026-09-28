@@ -13,6 +13,7 @@ Built by [TheMusicDev LLC](https://github.com/TheMusicDev), MIT licensed.
 
 ```sh
 composer require themusicdev/cakephp-daisyui
+bin/cake plugin load TheMusicDev/DaisyUi
 ```
 
 ## Loading the helpers
@@ -71,12 +72,7 @@ Every daisyUI class the helpers emit comes from one flat map, keyed
 
 Each modifier group (`color`, `size`, `appearance`, `modifier`, `direction`,
 `placement`, `behavior`, `alignment`) is a method option, so class names are
-never concatenated and Tailwind can always see them statically:
-
-```php
-echo $this->DataDisplay->badge('New', ['color' => 'primary', 'size' => 'sm']);
-// <span class="badge badge-primary badge-sm">New</span>
-```
+never concatenated and Tailwind can always see them statically.
 
 **Swap the whole map** (a map replaces the default entirely):
 
@@ -122,6 +118,21 @@ Configure::write('DaisyUi.cdn', false);
 ```
 
 The CDN URLs are overridable via `Configure::write('DaisyUi.cdn', [...])`.
+Each entry carries its own URL and integrity hash, so a hash is never
+applied to the wrong file:
+
+```php
+Configure::write('DaisyUi.cdn', [
+    'daisyui' => ['url' => 'https://example.com/daisy.css'],
+    'tailwind' => [
+        'url' => 'https://example.com/tw.js',
+        'integrity' => 'sha384-…',
+    ],
+]);
+```
+
+An entry without `integrity` (or with an empty one) is emitted without the
+`integrity`/`crossorigin` attributes; other entries keep their defaults.
 
 ## Production CSS: a Tailwind build
 

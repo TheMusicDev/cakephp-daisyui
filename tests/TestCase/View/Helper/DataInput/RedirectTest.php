@@ -53,4 +53,11 @@ class RedirectTest extends TestCase
             $this->assertStringContainsString('$this->Form->control(', $e->getMessage());
         }
     }
+
+    public function testCalendarPointsToNativeDateInput(): void
+    {
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('"type" => "date"');
+        $this->helper->calendar();
+    }
 }
