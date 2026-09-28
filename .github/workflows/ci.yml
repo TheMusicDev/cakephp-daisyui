@@ -8,7 +8,7 @@ jobs:
   test-lowest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
@@ -22,7 +22,7 @@ jobs:
   test-latest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: 'latest'
@@ -33,7 +33,7 @@ jobs:
   static:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
@@ -46,10 +46,10 @@ jobs:
   docs-smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: cakephp-daisyui
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: TheMusicDev/cakephp-daisyui-docs
           path: cakephp-daisyui-docs
