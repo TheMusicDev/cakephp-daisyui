@@ -5,7 +5,6 @@ namespace TheMusicDev\DaisyUi\Test\TestCase\View;
 
 use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
-use OutOfBoundsException;
 use RuntimeException;
 use TheMusicDev\DaisyUi\View\ClassMap;
 
@@ -44,9 +43,7 @@ class ClassMapTest extends TestCase
         Configure::delete('DaisyUi.classMap');
         ClassMap::reset();
 
-        $this->expectException(OutOfBoundsException::class);
-        $this->expectExceptionMessage('Unknown DaisyUi class map key');
-        ClassMap::get('badge.color.primary');
+        $this->assertSame('btn', ClassMap::get('button.base'));
     }
 
     public function testOverridesApplyOnTopOfTheChosenMap(): void
