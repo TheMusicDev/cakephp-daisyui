@@ -17,7 +17,7 @@ jobs:
         uses: ramsey/composer-install@v3
         with:
           composer-options: '--prefer-lowest --prefer-stable'
-      - run: composer check
+      - run: composer test
 
   test-latest:
     runs-on: ubuntu-latest
@@ -25,10 +25,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 'stable'
+          php-version: 'latest'
           coverage: none
       - run: composer install --prefer-dist --no-interaction
-      - run: composer check
+      - run: composer test
 
   static:
     runs-on: ubuntu-latest
