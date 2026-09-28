@@ -48,4 +48,16 @@ return [
     'badge.size.md' => 'badge-md',
     'badge.size.lg' => 'badge-lg',
     'badge.size.xl' => 'badge-xl',
+
+    // Alert — https://daisyui.com/components/alert/
+    'alert.base' => 'alert',
+    'alert.color.info' => 'alert-info',
+    'alert.color.success' => 'alert-success',
+    'alert.color.warning' => 'alert-warning',
+    'alert.color.error' => 'alert-error',
+    'alert.appearance.outline' => 'alert-outline',
+    'alert.appearance.dash' => 'alert-dash',
+    'alert.appearance.soft' => 'alert-soft',
+    'alert.direction.vertical' => 'alert-vertical',
+    'alert.direction.horizontal' => 'alert-horizontal',
 ];
