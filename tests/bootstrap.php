@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Cake\Cache\Cache;
 use Cake\Core\Configure;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -40,3 +41,6 @@ Configure::write('App', [
     'cssBaseUrl' => 'css/',
     'paths' => ['templates' => [ROOT . '/tests/test_app/templates/']],
 ]);
+
+// FormHelper labels go through __(), which needs this cache config.
+Cache::setConfig('_cake_translations_', ['engine' => 'Array']);

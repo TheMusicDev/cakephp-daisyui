@@ -154,9 +154,11 @@ plugin's sources in your input CSS:
 
 ## Content-Security-Policy
 
-Two parts of this plugin use inline script/attributes and need a CSP that
+Three parts of this plugin use inline script/attributes and need a CSP that
 allows them (e.g. `unsafe-inline` or a nonce):
 
 1. the modal's inline `onclick` handler (`showModal()`), and
-2. the theme-persistence script emitted by `Assets::css()` when theme
-   switching is configured.
+2. the theme-persistence script emitted by `Assets::css()` (turn it off with
+   `DaisyUi.persistTheme => false`), and
+3. the `oninvalid`/`oninput` handlers CakePHP's FormHelper adds to required
+   fields (turn them off with the helper config `autoSetCustomValidity => false`).

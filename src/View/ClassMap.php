@@ -33,6 +33,17 @@ final class ClassMap
     }
 
     /**
+     * @param string $key Dotted class-map key.
+     * @return bool Whether the active map defines the key.
+     */
+    public static function has(string $key): bool
+    {
+        self::$map ??= self::load();
+
+        return array_key_exists($key, self::$map);
+    }
+
+    /**
      * Resolves several keys and joins the non-empty results with spaces.
      *
      * @param string ...$keys Class-map keys.

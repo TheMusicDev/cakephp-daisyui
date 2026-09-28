@@ -80,4 +80,10 @@ class ClassMapTest extends TestCase
         $this->expectExceptionMessage('not found');
         ClassMap::get('badge.base');
     }
+
+    public function testHas(): void
+    {
+        $this->assertTrue(ClassMap::has('button.base'));
+        $this->assertFalse(ClassMap::has('nope.base'));
+    }
 }

@@ -141,8 +141,8 @@ class ButtonTest extends TestCase
         $html = $this->helper->button('Docs', ['url' => '/docs', 'behavior' => 'disabled']);
 
         $this->assertSame(
-            '<a href="/docs" class="btn btn-disabled" tabindex="-1" role="button"'
-            . ' aria-disabled="true">Docs</a>',
+            // No href: aria-disabled alone doesn't stop a link.
+            '<a class="btn btn-disabled" tabindex="-1" role="button" aria-disabled="true">Docs</a>',
             $html,
         );
     }

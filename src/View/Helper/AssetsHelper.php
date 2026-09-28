@@ -54,14 +54,82 @@ class AssetsHelper extends Helper
      */
     public function css(): string
     {
-        if (Configure::read('DaisyUi.cdn') === false) {
-            return '';
+        $out = '';
+        if (Configure::read('DaisyUi.cdn') !== false) {
+            $entries = array_replace($this->getConfig('cdn'), (array)Configure::read('DaisyUi.cdn', []));
+            $out .= $this->tag('css', 'daisyui', $entries['daisyui']);
+            // daisyui.css ships light and dark only; other themes need themes.css.
+            if (array_diff(self::themes(), ['light', 'dark'])) {
+                $out .= $this->tag('css', 'themes', $entries['themes']);
+            }
+            $out .= $this->tag('script', 'tailwind', $entries['tailwind']);
+        }
+        if (Configure::read('DaisyUi.persistTheme', true)) {
+            $out .= $this->themeScript();
         }
 
-        $entries = array_replace($this->getConfig('cdn'), (array)Configure::read('DaisyUi.cdn', []));
+        return $out;
+    }
 
-        return $this->tag('css', 'daisyui', $entries['daisyui'])
-            . $this->tag('script', 'tailwind', $entries['tailwind']);
+    /**
+     * The configured themes (`DaisyUi.themes`, default light + dark), or the given
+     * list, validated: names go into inline JavaScript and attributes.
+     *
+     * @param array<string>|null $themes Theme names, or null for the configured list.
+     * @return list<string>
+     * @throws \InvalidArgumentException On an empty list or an invalid theme name.
+     */
+    public static function themes(?array $themes = null): array
+    {
+        $themes = array_values($themes ?? (array)Configure::read('DaisyUi.themes', ['light', 'dark']));
+        if ($themes === []) {
+            throw new InvalidArgumentException('DaisyUi.themes must list at least one theme.');
+        }
+        foreach ($themes as $theme) {
+            if (!is_string($theme) || !preg_match('/^[a-z0-9][a-z0-9-]*$/', $theme)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid daisyUI theme name %s: use lowercase letters, digits and "-".',
+                    var_export($theme, true),
+                ));
+            }
+        }
+
+        return $themes;
+    }
+
+    /**
+     * Inline script (spec §5.9): before first paint, sets `data-theme` on `<html>`
+     * from localStorage — or, for a two-theme toggle, from the OS dark-mode setting,
+     * else the first theme — then keeps every theme controller in sync and saves changes.
+     *
+     * @return string
+     */
+    private function themeScript(): string
+    {
+        $themes = json_encode(
+            self::themes(),
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR,
+        );
+        $js = <<<JS
+(function(){
+var k='daisyui-theme',t={$themes},d=document.documentElement,s=null;
+try{s=localStorage.getItem(k)}catch(e){}
+var dark=t.length===2&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;
+var v=t.indexOf(s)>-1?s:(dark?t[1]:t[0]);
+d.setAttribute('data-theme',v);
+function sync(){document.querySelectorAll('input[data-theme-controller]').forEach(function(i){i.checked=i.value===v;});}
+document.addEventListener('DOMContentLoaded',function(){
+sync();
+document.querySelectorAll('input[data-theme-controller]').forEach(function(i){
+i.addEventListener('change',function(){
+v=i.type==='checkbox'&&!i.checked?t[0]:i.value;
+d.setAttribute('data-theme',v);
+try{localStorage.setItem(k,v)}catch(e){}
+sync();
+});});});})();
+JS;
+
+        return (string)$this->Html->scriptBlock($js);
     }
 
     /**

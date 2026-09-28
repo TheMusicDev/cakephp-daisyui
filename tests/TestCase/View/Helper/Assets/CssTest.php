@@ -41,6 +41,16 @@ class CssTest extends TestCase
     {
         Configure::write('DaisyUi.cdn', false);
 
+        $html = $this->helper->css();
+        $this->assertStringNotContainsString('<link', $html);
+        $this->assertStringNotContainsString('<script src', $html);
+    }
+
+    public function testCdnFalseAndNoPersistenceEmitsNothing(): void
+    {
+        Configure::write('DaisyUi.cdn', false);
+        Configure::write('DaisyUi.persistTheme', false);
+
         $this->assertSame('', $this->helper->css());
     }
 
