@@ -60,4 +60,19 @@ return [
     'alert.appearance.soft' => 'alert-soft',
     'alert.direction.vertical' => 'alert-vertical',
     'alert.direction.horizontal' => 'alert-horizontal',
+
+    // Card — https://daisyui.com/components/card/
+    'card.base' => 'card',
+    'card.part.title' => 'card-title',
+    'card.part.body' => 'card-body',
+    'card.part.actions' => 'card-actions',
+    'card.appearance.border' => 'card-border',
+    'card.appearance.dash' => 'card-dash',
+    'card.modifier.side' => 'card-side',
+    'card.modifier.image-full' => 'image-full',
+    'card.size.xs' => 'card-xs',
+    'card.size.sm' => 'card-sm',
+    'card.size.md' => 'card-md',
+    'card.size.lg' => 'card-lg',
+    'card.size.xl' => 'card-xl',
 ];

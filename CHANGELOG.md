@@ -15,3 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `escape` options and the `badge` class map.
 - `FeedbackHelper::alert()` with `color`, `appearance`, `direction`, `role`,
   `class`, `escape` options and the `alert` class map.
+- `DataDisplayHelper::card()` with `title`, `actions`, `image`, `imageAlt`,
+  `size`, `modifier`, `appearance`, `class`, `escape` options and the
+  `card` class map.
