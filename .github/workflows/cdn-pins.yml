@@ -1,0 +1,42 @@
+name: CDN pins
+
+on:
+  schedule:
+    - cron: '33 6 * * 1' # Mondays, after daisyUI's usual release days
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - id: pins
+        run: |
+          php bin/check-cdn-pins.php || true
+          if git diff --quiet -- src tests; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open a CDN pin bump PR
+        if: steps.pins.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b chore/cdn-pins
+          git commit -am "chore: bump CDN pins"
+          git push -u origin chore/cdn-pins
+          gh pr create \
+            --title "chore: bump CDN pins" \
+            --body "The pinned daisyUI / @tailwindcss/browser versions moved upstream. \`bin/check-cdn-pins.php\` updated the URLs and recomputed the SRI hashes (helper + test expectations). Review, merge, tag a release."
