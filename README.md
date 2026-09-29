@@ -191,8 +191,15 @@ plugin's sources in your input CSS:
 Three parts of this plugin use inline script/attributes and need a CSP that
 allows them (e.g. `unsafe-inline` or a nonce):
 
-1. the modal's inline `onclick` handler (`showModal()`), and
+1. the modal trigger's inline `onclick` handler (`showModal()`), and
 2. the theme-persistence script emitted by `Assets::css()` (turn it off with
    `DaisyUi.persistTheme => false`), and
 3. the `oninvalid`/`oninput` handlers CakePHP's FormHelper adds to required
    fields (turn them off with the helper config `autoSetCustomValidity => false`).
+
+You can drop item 1 entirely: create the modal with `'method' => 'popover'`
+and open it with `modalTrigger(..., ['popover' => true])`. That renders
+daisyUI's HTML-attribute modal (`<div class="modal" popover>` +
+`popovertarget`) — no JavaScript, works under `script-src 'none'`. The
+trade-off: a popover modal doesn't lock background interactions while a
+`<dialog>` does.
