@@ -93,6 +93,32 @@ class ModalTest extends TestCase
         $this->assertStringStartsWith('<button', $this->helper->modalTrigger('Open', 'm1', ['url' => '/x']));
     }
 
+    public function testPopoverModal(): void
+    {
+        $this->assertSame(
+            '<div id="m1" class="modal" popover=""><div class="modal-box"><p>Hi</p>'
+            . '<div class="modal-action"><button type="button" class="btn" popovertarget="m1" popovertargetaction="hide">Close</button></div>'
+            . '</div></div>',
+            $this->helper->modal('m1', '<p>Hi</p>', ['method' => 'popover']),
+        );
+    }
+
+    public function testPopoverBackdropClose(): void
+    {
+        $this->assertStringEndsWith(
+            '<div class="modal-backdrop"><button type="button" popovertarget="m1" popovertargetaction="hide">Close</button></div></div>',
+            $this->helper->modal('m1', 'x', ['method' => 'popover', 'backdropClose' => true]),
+        );
+    }
+
+    public function testPopoverTriggerUsesPopovertarget(): void
+    {
+        $this->assertSame(
+            '<button type="button" class="btn btn-primary" popovertarget="edit-user">Edit &lt;me&gt;</button>',
+            $this->helper->modalTrigger('Edit <me>', 'edit-user', ['color' => 'primary', 'popover' => true]),
+        );
+    }
+
     /**
      * @return array<string, array{string}>
      */
