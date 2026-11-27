@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- `ActionsHelper::modal()` accepts `'method' => 'popover'`: renders a daisyUI
+  popover modal (`<div class="modal" popover>`) opened with the HTML
+  `popovertarget` attribute — no JavaScript, works under `script-src 'none'`.
+- `ActionsHelper::modalTrigger()` accepts `'popover' => true`: emits
+  `popovertarget="{id}"` instead of the inline `onclick` handler.
+
 ## 1.0.0 - 2026-09-28
 
 First release: all 68 daisyUI 5 components plus daisyUI-styled Form, Paginator,

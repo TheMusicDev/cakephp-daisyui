@@ -174,12 +174,18 @@ class ActionsHelper extends Helper
      * row holding `actions` (raw HTML) plus a close button in `<form method="dialog">`.
      * `actions` sits outside that form, so it may contain forms of its own (e.g. `postLink()`).
      *
+     * With `'method' => 'popover'`, a `<div class="modal" popover>` is rendered
+     * instead, opened with the HTML `popovertarget` attribute (daisyUI method 2)
+     * — no JavaScript, works under `script-src 'none'`. Unlike a dialog it does
+     * not lock background interactions.
+     *
      * @param string $id Unique element id: letters, digits, `_` and `-`, starting with a letter.
      * @param string $content Raw HTML body; escape user data yourself.
      * @param array<string, mixed> $options `title` (escaped), `actions` (raw HTML),
      *   `close` (close-button text, escaped; default 'Close'; false = no close button),
-     *   `backdropClose` (bool: clicking outside closes), `placement` (top, middle,
-     *   bottom, start, end), `modifier` (open), `class`; other keys become `<dialog>` attributes.
+     *   `backdropClose` (bool: clicking outside closes), `method` (dialog, popover),
+     *   `placement` (top, middle, bottom, start, end), `modifier` (open), `class`;
+     *   other keys become `<dialog>`/`<div>` attributes.
      * @return string
      * @throws \InvalidArgumentException On an invalid id.
      */
@@ -190,7 +196,8 @@ class ActionsHelper extends Helper
         $actions = (string)($options['actions'] ?? '');
         $close = $options['close'] ?? __('Close');
         $backdropClose = !empty($options['backdropClose']);
-        unset($options['title'], $options['actions'], $options['close'], $options['backdropClose']);
+        $popover = ($options['method'] ?? 'dialog') === 'popover';
+        unset($options['title'], $options['actions'], $options['close'], $options['backdropClose'], $options['method']);
         $class = $this->componentClass('modal', $options);
 
         $attributes = ['id' => $id, 'class' => $class];
@@ -202,11 +209,23 @@ class ActionsHelper extends Helper
         $box .= $content;
 
         if ($close !== false) {
-            $actions .= $this->tag(
-                'form',
-                $this->tag('button', h((string)$close), ['type' => 'submit', 'class' => ClassMap::get('button.base')]),
-                ['method' => 'dialog'],
-            );
+            if ($popover) {
+                $actions .= $this->tag('button', h((string)$close), [
+                    'type' => 'button',
+                    'class' => ClassMap::get('button.base'),
+                    'popovertarget' => $id,
+                    'popovertargetaction' => 'hide',
+                ]);
+            } else {
+                $actions .= $this->tag(
+                    'form',
+                    $this->tag('button', h((string)$close), [
+                        'type' => 'submit',
+                        'class' => ClassMap::get('button.base'),
+                    ]),
+                    ['method' => 'dialog'],
+                );
+            }
         }
         if ($actions !== '') {
             $box .= $this->tag('div', $actions, ['class' => ClassMap::get('modal.part.action')]);
@@ -214,11 +233,29 @@ class ActionsHelper extends Helper
 
         $html = $this->tag('div', $box, ['class' => ClassMap::get('modal.part.box')]);
         if ($backdropClose) {
-            $html .= $this->tag(
-                'form',
-                $this->tag('button', h(__('Close')), ['type' => 'submit']),
-                ['method' => 'dialog', 'class' => ClassMap::get('modal.part.backdrop')],
-            );
+            if ($popover) {
+                $html .= $this->tag(
+                    'div',
+                    $this->tag('button', h(__('Close')), [
+                        'type' => 'button',
+                        'popovertarget' => $id,
+                        'popovertargetaction' => 'hide',
+                    ]),
+                    ['class' => ClassMap::get('modal.part.backdrop')],
+                );
+            } else {
+                $html .= $this->tag(
+                    'form',
+                    $this->tag('button', h(__('Close')), ['type' => 'submit']),
+                    ['method' => 'dialog', 'class' => ClassMap::get('modal.part.backdrop')],
+                );
+            }
+        }
+
+        if ($popover) {
+            $attributes['popover'] = ''; // popover="" is valid and reads as `popover`
+
+            return $this->tag('div', $html, $attributes + $options);
         }
 
         return $this->tag('dialog', $html, $attributes + $options);
@@ -230,9 +267,12 @@ class ActionsHelper extends Helper
      * Takes every `button()` option. Inline `onclick` needs `unsafe-inline`
      * (or a nonce) under a strict Content-Security-Policy.
      *
+     * With `'popover' => true`, it emits `popovertarget="{id}"` instead —
+     * pure HTML, no JavaScript — for modals created with `'method' => 'popover'`.
+     *
      * @param string $text Button text, escaped unless `'escape' => false`.
      * @param string $id The modal's id.
-     * @param array<string, mixed> $options `button()` options.
+     * @param array<string, mixed> $options `button()` options, plus `popover` (bool).
      * @return string
      * @throws \InvalidArgumentException On an invalid id.
      */
@@ -240,6 +280,12 @@ class ActionsHelper extends Helper
     {
         $this->assertModalId($id);
         unset($options['url']);
+
+        if (!empty($options['popover'])) {
+            unset($options['popover']);
+
+            return $this->button($text, ['popovertarget' => $id] + $options);
+        }
 
         return $this->button($text, [
             'onclick' => "document.getElementById('" . $id . "').showModal()",

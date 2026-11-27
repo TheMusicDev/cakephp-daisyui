@@ -1,0 +1,7 @@
+{
+    "release-type": "generic",
+    "changelog-path": "CHANGELOG.md",
+    "packages": {
+        ".": {}
+    }
+}
